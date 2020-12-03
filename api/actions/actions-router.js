@@ -22,6 +22,18 @@ const validateId = (req, res, next) => {
     })
 }
 
+const validateAction = (req, res, next) => {
+    const description = req.body.description
+    const notes = req.body.notes
+    if (!description) {
+      res.status(400).json({ message: 'Missing description.' })
+    } else if (!notes) {
+      res.status(400).json({ message: 'Missing notes.' })
+    } else {
+      next();
+    }
+  };
+
 router.get('/', (_, res) => {
     Action.get()
     .then(actions => {
@@ -37,8 +49,7 @@ router.get('/:id', validateId, (req, res) => {
    res.status(200).json(req.action)
 });
 
-// test this
-router.post('/', (req, res) => {
+router.post('/', validateAction, (req, res) => {
     const body = req.body
     Action.insert(body)
     .then(action => {
@@ -50,8 +61,7 @@ router.post('/', (req, res) => {
     })
 });
 
-// test this
-router.put('/:id', (req, res) => {
+router.put('/:id', validateAction, validateId, (req, res) => {
     const { id } = req.params
     const changes = req.body
     Action.update(id, changes)
@@ -67,9 +77,9 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', validateId, (req, res) => {
     const { id } = req.params
     Action.remove(id)
-    .then(() => [
+    .then(() => {
         res.status(200).json({ message: 'The action has been deleted.' })
-    ])
+    })
     .catch(error => {
         console.log(error)
         res.status(500).json({ message: 'Error removing the action.' })

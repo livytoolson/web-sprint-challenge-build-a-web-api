@@ -21,6 +21,18 @@ const validateId = (req, res, next) => {
     })
 };
 
+const validateProject = (req, res, next) => {
+    const name = req.body.name
+    const description = req.body.description
+    if (!name) {
+      res.status(400).json({ message: 'Missing description.' })
+    } else if (!description) {
+      res.status(400).json({ message: 'Missing notes.' })
+    } else {
+      next();
+    }
+  };
+
 router.get('/', (_, res) => {
     Project.get()
     .then(projects => {
@@ -36,7 +48,19 @@ router.get('/:id', validateId, (req, res) => {
     res.status(200).json(req.project)
 });
 
-router.post('/', (req, res) => {
+router.get(':/id/actions', validateId, (req, res) => {
+    const { id } = req.params
+    Project.getProjectActions(id)
+    .then(actions => {
+        res.status(200).json(actions)
+    })
+    .catch(error => {
+        console.log(error)
+        res.status(500).json({ message: 'The actions associated with this project could not be retrieved.' })
+    })
+})
+
+router.post('/', validateProject, (req, res) => {
     const projectBody = req.body
     Project.insert(projectBody)
     .then(project => {
@@ -48,12 +72,29 @@ router.post('/', (req, res) => {
     })
 });
 
-router.put('/:id', (req, res) => {
-
+router.put('/:id', validateProject, validateId, (req, res) => {
+    const { id } = req.params
+    const change = req.body
+    Project.update(id, change)
+    .then(project => {
+        res.status(200).json(project)
+    })
+    .catch(error => {
+        console.log(error)
+        res.status(500).json({ message: 'Error updating the project.' })
+    })
 });
 
 router.delete('/:id', validateId, (req, res) => {
-
+    const { id } = req.params
+    Project.remove(id)
+    .then(() => {
+        res.status(200).json({ message: 'The project has been deleted.' })
+    })
+    .catch(error => {
+        console.log(error)
+        res.status(500).json({ message: 'Error removing the project.' })
+    })
 });
 
 module.exports = router;
