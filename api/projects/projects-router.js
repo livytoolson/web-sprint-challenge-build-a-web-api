@@ -48,7 +48,7 @@ router.get('/:id', validateId, (req, res) => {
     res.status(200).json(req.project)
 });
 
-router.get(':/id/actions', validateId, (req, res) => {
+router.get('/:id/actions', validateId, (req, res) => {
     const { id } = req.params
     Project.getProjectActions(id)
     .then(actions => {
