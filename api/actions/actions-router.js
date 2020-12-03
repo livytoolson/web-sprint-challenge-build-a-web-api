@@ -2,8 +2,6 @@
 const express = require('express');
 
 const Action = require('./actions-model');
-const Project = require('../projects/projects-model');
-const actionsModel = require('./actions-model');
 
 const router = express.Router();
 
@@ -24,14 +22,14 @@ const validateId = (req, res, next) => {
     })
 }
 
-router.get('/', (req, res) => {
+router.get('/', (_, res) => {
     Action.get()
-    .then(action => {
-        res.status(200).json(action)
+    .then(actions => {
+        res.status(200).json(actions)
     })
     .catch(error => {
         console.log(error)
-        res.status(500).json({ messsage: 'The actions informatoin could not be retrieved.' })
+        res.status(500).json({ messsage: 'The action informatoin could not be retrieved.' })
     })
 });
 
@@ -39,6 +37,7 @@ router.get('/:id', validateId, (req, res) => {
    res.status(200).json(req.action)
 });
 
+// test this
 router.post('/', (req, res) => {
     const body = req.body
     Action.insert(body)
@@ -51,7 +50,8 @@ router.post('/', (req, res) => {
     })
 });
 
-router.put('/', (req, res) => {
+// test this
+router.put('/:id', (req, res) => {
     const { id } = req.params
     const changes = req.body
     Action.update(id, changes)
